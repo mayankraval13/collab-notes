@@ -1,0 +1,35 @@
+-- Create database
+CREATE DATABASE IF NOT EXISTS collab_notes;
+USE collab_notes;
+
+-- Notes table
+CREATE TABLE notes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL,
+  uploader VARCHAR(100) NOT NULL,
+  downloads INT DEFAULT 0,
+  votes INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Comments table
+CREATE TABLE IF NOT EXISTS comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  note_id INT NOT NULL,
+  username VARCHAR(100) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX (note_id),
+  CONSTRAINT fk_comments_note
+    FOREIGN KEY (note_id) REFERENCES notes(id)
+    ON DELETE CASCADE
+);

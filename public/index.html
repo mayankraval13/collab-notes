@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html ng-app="collabNotesApp" ng-controller="NotesController">
+<head>
+  <meta charset="UTF-8">
+  <title>Collaborative Notes Sharing System</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body ng-class="{'landing-bg': view==='landing'}">
+
+  <h1>Collaborative Notes Sharing System</h1>
+  <div class="app-header" ng-if="auth.authenticated && view==='app'">
+    <div class="brand">Collab Notes</div>
+    <div class="app-nav">
+      <div class="tabs">
+        <button class="tab" ng-class="{active: appTab==='notes'}" ng-click="showTab('notes')">Notes</button>
+        <button class="tab" ng-class="{active: appTab==='uploads'}" ng-click="showTab('uploads')">Uploads</button>
+        <button class="tab" ng-class="{active: appTab==='top'}" ng-click="showTab('top')">Top reviewed</button>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="user-menu" ng-class="{open: userMenuOpen}">
+      <div class="user-chip" ng-click="toggleUserMenu()">
+        <div class="avatar">{{ (auth.user.name || 'U')[0] | uppercase }}</div>
+        <div class="user-name">{{auth.user.name}}</div>
+      </div>
+      <div class="dropdown" ng-if="userMenuOpen">
+        <div class="dropdown-item muted">{{auth.user.email}}</div>
+        <button class="dropdown-item danger" ng-click="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Landing Hero -->
+  <section class="hero" ng-if="view==='landing'">
+    <div class="hero-content">
+      <h2>Indus University student presents</h2>
+      <h1 class="app-title">Collaborative Notes Sharing App</h1>
+      <p class="subtitle">Share, discover, and upvote the best study notes. Fast, simple, and secure.</p>
+      <div class="cta-row">
+        <button class="btn cta" ng-click="goTo('auth')">Get Started</button>
+        <button class="btn alt" ng-click="goTo('auth')">Login to Continue</button>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <h3>Upload PDFs</h3>
+        <p>Share your class notes as clean, readable PDFs with your peers.</p>
+      </div>
+      <div class="feature">
+        <h3>Discover & Vote</h3>
+        <p>Find high-quality notes easily. Upvote the resources that help you.</p>
+      </div>
+      <div class="feature">
+        <h3>Secure Access</h3>
+        <p>Access is protected with secure login so your content stays safe.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="section about" ng-if="view==='landing'">
+    <h2>About the Project</h2>
+    <p>
+      Built by an Indus University student, this platform makes it effortless to share and discover study notes.
+      Whether you are preparing for exams or collaborating on assignments, the app brings everything into one simple, secure space.
+    </p>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section how" ng-if="view==='landing'">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step"><span class="badge">1</span><h4>Create an account or login</h4><p>Secure access keeps your content protected.</p></div>
+      <div class="step"><span class="badge">2</span><h4>Upload your notes (PDF)</h4><p>Upload clean PDFs for the best reading experience.</p></div>
+      <div class="step"><span class="badge">3</span><h4>Discover & upvote</h4><p>Find the best notes quickly using the voting system.</p></div>
+    </div>
+  </section>
+
+  <!-- Extended Features Grid -->
+  <section class="section features-extended" ng-if="view==='landing'">
+    <h2>Why you'll love it</h2>
+    <div class="grid">
+      <div class="card"><h4>Fast uploads</h4><p>Drag-and-drop like experience with instant feedback.</p></div>
+      <div class="card"><h4>Clean previews</h4><p>View PDFs directly without leaving the app.</p></div>
+      <div class="card"><h4>Community votes</h4><p>Quality surfaces to the top with simple upvotes.</p></div>
+      <div class="card"><h4>Mobile friendly</h4><p>Designed to look great on phones, tablets, and desktops.</p></div>
+      <div class="card"><h4>Privacy first</h4><p>Your data stays protected with session-based access.</p></div>
+      <div class="card"><h4>Made for students</h4><p>Focused features that students actually use.</p></div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section testimonials" ng-if="view==='landing'">
+    <h2>What students say</h2>
+    <div class="grid">
+      <div class="quote">“Found exactly what I needed before exams.” — CS Student</div>
+      <div class="quote">“Uploading and sharing is super easy.” — CE Student</div>
+      <div class="quote">“The voting makes the best notes obvious.” — IT Student</div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section faq" ng-if="view==='landing'">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item"><h4>Is it free?</h4><p>Yes, the app is free for students to use.</p></div>
+      <div class="faq-item"><h4>What file types are supported?</h4><p>PDF files are supported for clean and consistent viewing.</p></div>
+      <div class="faq-item"><h4>Do I need an account to browse?</h4><p>Login is required to browse and upload notes.</p></div>
+    </div>
+    <div style="margin-top: 12px;">
+      <button class="btn cta" ng-click="goTo('auth')">Get Started</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" ng-if="view==='landing'">
+    <div class="footer-inner">
+      <div>© {{(new Date()).getFullYear()}} Collaborative Notes Sharing • Indus University</div>
+      <div><a href="#" ng-click="goTo('auth')">Login</a> · <a href="#" ng-click="goTo('auth')">Get Started</a></div>
+    </div>
+  </footer>
+
+  <!-- Login Section -->
+  <div class="auth-card" ng-if="view==='auth' && !auth.authenticated">
+    <h3>Login</h3>
+    <input type="email" ng-model="auth.email" placeholder="Email">
+    <input type="password" ng-model="auth.password" placeholder="Password">
+    <button ng-click="login()">Sign In</button>
+    <p class="auth-hint">You should be Indus University student to get access to the app</p>
+  </div>
+
+  <!-- Upload Section -->
+  <!-- <div class="upload-card">
+    <h2>Upload a Note (PDF)</h2>
+    <input type="text" ng-model="uploader" placeholder="Your Name">
+    <input type="file" file-model="file">
+    <button ng-click="uploadNote()">Upload</button>
+  </div> -->
+  <!-- ===== Upload Box ===== -->
+    <div class="upload-container" ng-if="view==='app' && auth.authenticated && appTab==='notes'">
+      <div class="upload-card">
+      <h3>Upload a Note</h3>
+      
+      <!-- Uploader Name -->
+      <input type="text" ng-model="newNote.uploader" placeholder="Your Name">
+
+      <!-- File Input (bound directly to newNote.file) -->
+      <input type="file" id="fileInput" file-model="newNote.file">
+
+      <!-- Upload Button -->
+      <button ng-click="uploadNote()">Upload</button>
+      </div>
+    </div>
+
+
+  <!-- Notes Carousel -->
+  
+
+  <!-- Preview Modal -->
+  <div class="preview-overlay" ng-if="previewNote && view==='app' && auth.authenticated">
+    <div class="preview-window">
+      <button class="close-btn" ng-click="closePreview()">✖</button>
+      <h3>{{ previewNote.uploader }}'s Note</h3>
+      <iframe ng-src="{{ previewUrl }}" width="100%" height="500px"></iframe>
+    </div>
+  </div>
+
+  <!-- Edit Modal - Updated to remove name input field -->
+  <div class="edit-overlay" ng-if="editNote && view==='app' && auth.authenticated">
+    <div class="edit-window">
+      <!-- <button class="close-btn" ng-click="closeEdit()">✖</button> -->
+      <h3>Edit PDF: {{ displayName(editNote.filename) }}</h3>
+      <div class="edit-content">
+        <p class="edit-info">You are editing your uploaded PDF. Select a new PDF file to replace the current one.</p>
+        <div class="file-input-wrapper">
+          <input type="file" id="editFileInput" file-model="editNote.newFile" accept=".pdf" required>
+        </div>
+        <div class="edit-actions">
+          <button class="btn cancel" ng-click="closeEdit()">Cancel</button>
+          <button class="btn save" ng-click="confirmUpdate()">Update PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Uploads Page (grid) -->
+  <section class="uploads-section" ng-if="view==='app' && auth.authenticated && appTab==='uploads'">
+    <div class="notes-toolbar">
+      <input
+        type="text"
+        class="search-input"
+        ng-model="searchQuery"
+        ng-focus="searchActive=true"
+        ng-blur="searchActive=false"
+        placeholder="Search notes..."
+        aria-label="Search notes"
+      >
+    </div>
+    <div class="uploads-grid">
+      <div class="upload-item" ng-repeat="note in notes | filter:notesFilter">
+        <div class="item-header">
+          <div class="file-icon">📄</div>
+          <div class="meta">
+            <div class="file-name" title="{{displayName(note.filename)}}">{{displayName(note.filename)}}</div>
+            <div class="file-sub">
+              <span class="uploader-chip"><span class="chip-avatar">{{ (note.uploader || 'U')[0] | uppercase }}</span>{{note.uploader}}</span>
+        
+              <span class="dot">•</span>
+              👍 {{note.votes || 0}}
+              <span class="dot">•</span>
+              ⬇️ {{note.downloads || 0}}
+            </div>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="btn preview" ng-click="openPreview(note)">Preview</button>
+          <button class="btn edit" ng-click="openComments(note)">Comments</button>
+          <button class="btn" ng-click="downloadNote(note)">Download</button>
+          <button class="btn like" ng-click="voteNote(note)">👍</button>
+          <button class="btn edit-pdf" ng-if="note.uploader === auth.user.name" ng-click="openEdit(note)">Edit PDF</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Reviewed Page -->
+  <section class="top-section" ng-if="view==='app' && auth.authenticated && appTab==='top'">
+    <div class="top-layout">
+      <aside class="top-sidebar">
+        <div class="top-block">
+          <h2>Top Liked</h2>
+          <div class="top-list">
+            <div class="top-item" ng-repeat="note in topLiked">
+              <div class="top-name" title="{{displayName(note.filename)}}">{{displayName(note.filename)}}</div>
+              <div class="top-meta">
+                <span class="uploader-chip"><span class="chip-avatar">{{ (note.uploader || 'U')[0] | uppercase }}</span>{{note.uploader}}</span>
+                <span class="dot">•</span>
+                👍 {{note.votes || 0}}
+                <span class="dot">•</span>
+                ⬇️ {{note.downloads || 0}}
+              </div>
+              <div class="top-actions">
+                <button class="btn preview" ng-click="openPreview(note)">Preview</button>
+                <button class="btn" ng-click="downloadNote(note)">Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="top-block">
+          <h2>Top Downloaded</h2>
+          <div class="top-list">
+            <div class="top-item" ng-repeat="note in topDownloaded">
+              <div class="top-name" title="{{displayName(note.filename)}}">{{displayName(note.filename)}}</div>
+              <div class="top-meta">
+                <span class="uploader-chip"><span class="chip-avatar">{{ (note.uploader || 'U')[0] | uppercase }}</span>{{note.uploader}}</span>
+                <span class="dot">•</span>
+                👍 {{note.votes || 0}}
+                <span class="dot">•</span>
+                ⬇️ {{note.downloads || 0}}
+              </div>
+              <div class="top-actions">
+                <button class="btn preview" ng-click="openPreview(note)">Preview</button>
+                <button class="btn" ng-click="downloadNote(note)">Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Comments Bottom Sheet -->
+  <section class="comments-flyout" ng-if="commentsOpen" ng-click="$event.stopPropagation()">
+    <div class="comments-header">
+      <div class="title">Comments · {{displayName(activeNote.filename)}}</div>
+      <button class="btn cancel" ng-click="closeComments()">✕</button>
+    </div>
+    <div class="comments-body">
+      <form class="comment-form" ng-submit="addComment()">
+        <input type="text" ng-model="newComment.username" placeholder="Your name" required>
+        <textarea ng-model="newComment.content" placeholder="Write a comment" rows="3" required></textarea>
+        <button type="submit" class="btn save">Post</button>
+      </form>
+      <div class="comment-list">
+        <div class="comment-item" ng-repeat="c in comments">
+          <div class="comment-meta"><span class="comment-user">{{c.username}}</span> · <span class="comment-time">{{c.created_at}}</span></div>
+          <div class="comment-text">{{c.content}}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js?v=20250925"></script>
+</body>
+</html>
